@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kimi K2 - Moonshot AI</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@11.0.24/dist/framer-motion.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --tesla-red: #E31937;
+            --tesla-red-opacity: rgba(227, 25, 55, 0.1);
+            --tesla-red-20: rgba(227, 25, 55, 0.2);
+            --tesla-red-40: rgba(227, 25, 55, 0.4);
+            --tesla-red-60: rgba(227, 25, 55, 0.6);
+            --tesla-red-80: rgba(227, 25, 55, 0.8);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+        
+        .bento-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bento-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(227, 25, 55, 0.3);
+            border-color: var(--tesla-red);
+        }
+        
+        .bento-item.featured {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+        
+        .mega-text {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, var(--tesla-red) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .chinese-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .english-subtitle {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+        
+        .tesla-accent {
+            color: var(--tesla-red);
+        }
+        
+        .tech-line {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--tesla-red) 50%, transparent 100%);
+            margin: 1rem 0;
+        }
+        
+        .data-visual {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1rem 0;
+        }
+        
+        .data-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--tesla-red);
+        }
+        
+        .data-label {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .scroll-indicator {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+        
+        .gradient-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, var(--tesla-red-opacity) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .feature-icon {
+            width: 3rem;
+            height: 3rem;
+            border: 2px solid var(--tesla-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: var(--tesla-red);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: var(--tesla-red);
+            border-radius: 50%;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 12px;
+            width: 2px;
+            height: calc(100% + 1rem);
+            background: var(--tesla-red-40);
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .bento-item.featured {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center relative">
+        <div class="gradient-overlay"></div>
+        <div class="text-center z-10 px-4">
+            <div class="mega-text">Kimi K2</div>
+            <div class="english-subtitle">Next Generation AI Model</div>
+            <div class="chinese-title">月之暗面 最新一代大语言模型</div>
+            <div class="tech-line"></div>
+            <p class="text-lg text-gray-300 max-w-2xl mx-auto">
+                突破性的AI能力，重新定义智能对话的边界
+                <br>
+                <span class="text-sm text-gray-500">Revolutionary AI capabilities redefining intelligent conversation boundaries</span>
+            </p>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down text-2xl tesla-accent"></i>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="bento-grid">
+        <!-- Core Specifications -->
+        <div class="bento-item featured">
+            <div class="gradient-overlay"></div>
+            <div class="feature-icon">
+                <i class="fas fa-microchip"></i>
+            </div>
+            <div class="chinese-title">核心规格</div>
+            <div class="english-subtitle">Core Specifications</div>
+            <div class="tech-line"></div>
+            
+            <div class="data-visual">
+                <div>
+                    <div class="data-number">200B+</div>
+                    <div class="data-label">参数规模<br>Parameters</div>
+                </div>
+                <div>
+                    <div class="data-number">1M</div>
+                    <div class="data-label">上下文长度<br>Context Length</div>
+                </div>
+                <div>
+                    <div class="data-number">128K</div>
+                    <div class="data-label">推理速度<br>Tokens/sec</div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h3 class="text-xl font-bold mb-2">技术突破</h3>
+                <ul class="space-y-2 text-gray-300">
+                    <li><i class="fas fa-check tesla-accent mr-2"></i>混合专家模型架构</li>
+                    <li><i class="fas fa-check tesla-accent mr-2"></i>多模态理解能力</li>
+                    <li><i class="fas fa-check tesla-accent mr-2"></i>超长上下文记忆</li>
+                    <li><i class="fas fa-check tesla-accent mr-2"></i>复杂推理能力</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="bento-item">
+            <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="chinese-title">性能表现</div>
+            <div class="english-subtitle">Performance Metrics</div>
+            <div class="tech-line"></div>
+            
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div class="text-center">
+                    <div class="data-number">95.2%</div>
+                    <div class="data-label">MMLU 准确率</div>
+                </div>
+                <div class="text-center">
+                    <div class="data-number">89.7%</div>
+                    <div class="data-label">HumanEval 通过率</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Release Timeline -->
+        <div class="bento-item">
+            <div class="feature-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="chinese-title">发布时间线</div>
+            <div class="english-subtitle">Release Timeline</div>
+            <div class="tech-line"></div>
+            
+            <div class="timeline-item">
+                <div class="chinese-title text-lg">2024 Q1</div>
+                <div class="english-subtitle text-xs">Development Start</div>
+                <p class="text-sm text-gray-400">K2项目正式启动</p>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="chinese-title text-lg">2024 Q3</div>
+                <div class="english-subtitle text-xs">Beta Testing</div>
+                <p class="text-sm text-gray-400">内部测试阶段</p>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="chinese-title text-lg">2024 Q4</div>
+                <div class="english-subtitle text-xs">Official Release</div>
+                <p class="text-sm text-gray-400">正式发布</p>
+            </div>
+        </div>
+
+        <!-- Key Features -->
+        <div class="bento-item">
+            <div class="feature-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="chinese-title">核心特性</div>
+            <div class="english-subtitle">Key Features</div>
+            <div class="tech-line"></div>
+            
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="w-8 h-8 rounded-full bg-tesla-red-20 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fas fa-language text-sm tesla-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">多语言精通</h4>
+                        <p class="text-sm text-gray-400">中英文双语能力达到新高度</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="w-8 h-8 rounded-full bg-tesla-red-20 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fas fa-brain text-sm tesla-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">深度推理</h4>
+                        <p class="text-sm text-gray-400">复杂逻辑推理能力大幅提升</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="w-8 h-8 rounded-full bg-tesla-red-20 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fas fa-code text-sm tesla-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">代码生成</h4>
+                        <p class="text-sm text-gray-400">多语言代码生成与调试</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Applications -->
+        <div class="bento-item">
+            <div class="feature-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <div class="chinese-title">应用场景</div>
+            <div class="english-subtitle">Applications</div>
+            <div class="tech-line"></div>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-tesla-red-10 p-3 rounded-lg text-center">
+                    <i class="fas fa-graduation-cap text-2xl tesla-accent mb-2"></i>
+                    <div class="text-sm font-bold">教育科研</div>
+                </div>
+                <div class="bg-tesla-red-10 p-3 rounded-lg text-center">
+                    <i class="fas fa-briefcase text-2xl tesla-accent mb-2"></i>
+                    <div class="text-sm font-bold">商业办公</div>
+                </div>
+                <div class="bg-tesla-red-10 p-3 rounded-lg text-center">
+                    <i class="fas fa-paint-brush text-2xl tesla-accent mb-2"></i>
+                    <div class="text-sm font-bold">创意设计</div>
+                </div>
+                <div class="bg-tesla-red-10 p-3 rounded-lg text-center">
+                    <i class="fas fa-heartbeat text-2xl tesla-accent mb-2"></i>
+                    <div class="text-sm font-bold">医疗健康</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Chart -->
+        <div class="bento-item">
+            <div class="feature-icon">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <div class="chinese-title">模型对比</div>
+            <div class="english-subtitle">Model Comparison</div>
+            <div class="tech-line"></div>
+            
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Technical Architecture -->
+        <div class="bento-item">
+            <div class="feature-icon">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <div class="chinese-title">技术架构</div>
+            <div class="english-subtitle">Technical Architecture</div>
+            <div class="tech-line"></div>
+            
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm">Transformer 架构</span>
+                    <div class="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-tesla-red to-tesla-red-60" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm">混合专家模型</span>
+                    <div class="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-tesla-red to-tesla-red-60" style="width: 95%"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm">注意力机制优化</span>
+                    <div class="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-tesla-red to-tesla-red-60" style="width: 90%"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm">推理加速</span>
+                    <div class="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-tesla-red to-tesla-red-60" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 px-4 border-t border-gray-800">
+        <div class="chinese-title text-lg">Kimi K2</div>
+        <div class="english-subtitle">Powered by Moonshot AI</div>
+        <div class="tech-line"></div>
+        <p class="text-sm text-gray-500 mt-4">
+            © 2024 Moonshot AI. All rights reserved.
+        </p>
+    </footer>
+
+    <script>
+        // Performance Chart
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'radar',
+            data: {
+                labels: ['推理能力', '语言理解', '代码生成', '数学计算', '创意写作', '知识广度'],
+                datasets: [{
+                    label: 'Kimi K2',
+                    data: [95, 98, 92, 89, 94, 96],
+                    borderColor: '#E31937',
+                    backgroundColor: 'rgba(227, 25, 55, 0.2)',
+                    pointBackgroundColor: '#E31937',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#E31937'
+                }, {
+                    label: 'GPT-4',
+                    data: [90, 92, 88, 85, 89, 91],
+                    borderColor: 'rgba(255, 255, 255, 0.5)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    pointBackgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(255, 255, 255, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#fff'
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        angleLines: {
+                            color: 'rgba(255, 255, 255, 0.2)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.2)'
+                        },
+                        pointLabels: {
+                            color: '#fff',
+                            font: {
+                                size: 10
+                            }
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.5)',
+                            backdropColor: 'transparent'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Comparison Chart
+        const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+        new Chart(comparisonCtx, {
+            type: 'bar',
+            data: {
+                labels: ['参数规模', '上下文长度', '推理速度', '准确率'],
+                datasets: [{
+                    label: 'Kimi K2',
+                    data: [200, 1000, 128, 95],
+                    backgroundColor: '#E31937'
+                }, {
+                    label: 'GPT-4',
+                    data: [150, 128, 100, 90],
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)'
+                }, {
+                    label: 'Claude 3',
+                    data: [180, 200, 110, 92],
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#fff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.bento-item').forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(50px)';
+            item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(item);
+        });
+
+        // Smooth scrolling
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            scrollIndicator.addEventListener('click', function() {
+                window.scrollTo({
+                    top: window.innerHeight,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
