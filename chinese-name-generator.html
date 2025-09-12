@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文取名神器 - 宝宝起名专家</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', '微软雅黑', 'STKaiti', '华文楷体', serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '👶';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .input-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(240, 147, 251, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .name-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .name-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .name-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .name-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .name-details {
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .score {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .meaning {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .meaning h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .name-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            border-radius: 20px;
+        }
+
+        .favorites-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            color: #333;
+        }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .favorite-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .favorite-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👶 中文取名神器</h1>
+            <p>传承文化，赋予美好 - 为您的宝宝找到完美的名字</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="surname">姓氏</label>
+                        <input type="text" id="surname" placeholder="请输入姓氏" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">性别</label>
+                        <select id="gender">
+                            <option value="">请选择性别</option>
+                            <option value="male">男孩</option>
+                            <option value="female">女孩</option>
+                            <option value="unisex">中性</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="birthDate">出生日期</label>
+                        <input type="date" id="birthDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="nameLength">名字长度</label>
+                        <select id="nameLength">
+                            <option value="1">单字名</option>
+                            <option value="2" selected>双字名</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="preference">取名偏好</label>
+                        <select id="preference">
+                            <option value="">请选择偏好</option>
+                            <option value="traditional">传统典雅</option>
+                            <option value="modern">现代时尚</option>
+                            <option value="literary">文艺诗意</option>
+                            <option value="auspicious">吉祥寓意</option>
+                            <option value="unique">独特个性</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="element">五行补缺（可选）</label>
+                        <select id="element">
+                            <option value="">自动分析</option>
+                            <option value="wood">木</option>
+                            <option value="fire">火</option>
+                            <option value="earth">土</option>
+                            <option value="metal">金</option>
+                            <option value="water">水</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="avoidCharacters">避讳用字</label>
+                        <input type="text" id="avoidCharacters" placeholder="请输入不想用的字，用逗号分隔">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="generateNames()">🎯 智能取名</button>
+                    <button class="btn btn-secondary" onclick="generateRandomName()">🎲 随机取名</button>
+                    <button class="btn btn-secondary" onclick="clearResults()">🗑️ 清空结果</button>
+                </div>
+            </div>
+
+            <div class="stats" id="stats" style="display: none;">
+                <div class="stat-card">
+                    <span class="stat-number" id="generatedCount">0</span>
+                    <div class="stat-label">已生成名字</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="favoriteCount">0</span>
+                    <div class="stat-label">收藏名字</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="avgScore">0</span>
+                    <div class="stat-label">平均评分</div>
+                </div>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>正在为您精心挑选好名字...</p>
+            </div>
+
+            <div class="results-section" id="results" style="display: none;">
+                <h2>🌟 为您推荐的名字</h2>
+                <div class="results-grid" id="resultsGrid"></div>
+            </div>
+
+            <div class="favorites-section" id="favoritesSection" style="display: none;">
+                <h2>❤️ 我的收藏</h2>
+                <div class="favorites-grid" id="favoritesGrid"></div>
+                <div class="button-group" style="margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="exportFavorites()">📋 导出收藏</button>
+                    <button class="btn btn-secondary" onclick="clearFavorites()">🗑️ 清空收藏</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 数据配置
+        const config = {
+            surnames: ['王', '李', '张', '刘', '陈', '杨', '黄', '赵', '周', '吴', '徐', '孙', '朱', '马', '胡', '郭', '林', '何', '高', '梁'],
+            
+            maleNames: {
+                traditional: ['文', '武', '德', '仁', '义', '礼', '智', '信', '忠', '孝', '勇', '刚', '强', '健', '毅', '峰', '山', '川', '河', '海'],
+                modern: ['宇', '轩', '浩', '然', '泽', '宇', '子', '涵', '梓', '轩', '浩', '宇', '子', '墨', '梓', '豪', '子', '睿', '梓', '宸'],
+                literary: ['诗', '书', '礼', '乐', '琴', '棋', '书', '画', '墨', '香', '竹', '梅', '兰', '菊', '松', '柏', '青', '山', '绿', '水'],
+                auspicious: ['福', '禄', '寿', '喜', '财', '吉', '祥', '如', '意', '安', '康', '平', '安', '幸', '福', '美', '满', '团', '圆', '和'],
+                unique: ['骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁', '骁']
+            },
+            
+            femaleNames: {
+                traditional: ['淑', '贤', '惠', '雅', '静', '婉', '柔', '美', '丽', '端', '庄', '秀', '慧', '敏', '捷', '巧', '妙', '玲', '珑', '晶'],
+                modern: ['欣', '怡', '梓', '萱', '子', '萱', '诗', '涵', '雨', '桐', '语', '嫣', '思', '琪', '梦', '瑶', '心', '怡', '若', '曦'],
+                literary: ['诗', '词', '歌', '赋', '琴', '瑟', '琵', '琶', '书', '画', '墨', '砚', '笔', '纸', '梅', '兰', '竹', '菊', '荷', '莲'],
+                auspicious: ['福', '禄', '寿', '喜', '财', '吉', '祥', '如', '意', '安', '康', '平', '安', '幸', '福', '美', '满', '甜', '蜜', '乐'],
+                unique: ['嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣', '嫣']
+            },
+            
+            unisexNames: ['晨', '曦', '晓', '明', '光', '亮', '星', '月', '云', '霞', '风', '雨', '雪', '霜', '春', '夏', '秋', '冬', '东', '南'],
+            
+            elements: {
+                wood: ['木', '林', '森', '松', '柏', '柳', '桐', '梓', '栋', '梁', '柱', '材', '树', '枝', '叶', '花', '草', '竹', '莲', '荷'],
+                fire: ['火', '炎', '焱', '燚', '光', '明', '亮', '照', '辉', '煌', '灿', '烂', '焰', '灯', '烛', '炉', '炮', '烟', '热', '暖'],
+                earth: ['土', '地', '山', '川', '河', '岳', '峰', '岭', '岗', '坡', '城', '堡', '墙', '塔', '坛', '场', '基', '址', '坊', '块'],
+                metal: ['金', '银', '铜', '铁', '钢', '铝', '锡', '铅', '钟', '铃', '锣', '鼓', '琴', '瑟', '钥', '锁', '钱', '币', '宝', '珠'],
+                water: ['水', '泉', '河', '湖', '海', '洋', '江', '河', '溪', '流', '波', '浪', '涛', '潮', '池', '塘', '泽', '润', '湿', '淡']
+            },
+            
+            meanings: {
+                '文': '文采斐然，学识渊博', '武': '勇武刚强，坚毅果敢', '德': '品德高尚，道德完备', '仁': '仁爱善良，宽厚待人',
+                '义': '正义凛然，仗义执言', '礼': '礼貌谦逊，知书达理', '智': '智慧过人，聪明睿智', '信': '诚实守信，言出必行',
+                '忠': '忠诚可靠，忠心耿耿', '孝': '孝顺父母，尊老爱幼', '勇': '勇敢无畏，勇往直前', '刚': '刚强坚毅，不屈不挠',
+                '强': '坚强有力，自强不息', '健': '健康强壮，精力充沛', '毅': '毅力非凡，持之以恒', '峰': '登峰造极，志向高远',
+                '山': '稳如泰山，坚定不移', '川': '胸怀宽广，气度非凡', '河': '生生不息，源远流长', '海': '胸怀宽广，包容万物',
+                '淑': '淑女端庄，温柔贤淑', '贤': '贤良淑德，才德兼备', '惠': '贤惠善良，温柔体贴', '雅': '优雅大方，文雅端庄',
+                '静': '安静恬淡，文静优雅', '婉': '婉约温柔，善解人意', '柔': '温柔体贴，柔中带刚', '美': '美丽大方，美好善良',
+                '丽': '秀丽端庄，美丽动人', '端': '端庄大方，举止得体', '庄': '庄重典雅，稳重大方', '秀': '秀丽端庄，才华出众',
+                '慧': '聪慧过人，智慧非凡', '敏': '敏锐聪慧，反应敏捷', '捷': '敏捷迅速，才思敏捷', '巧': '心灵手巧，巧妙精致',
+                '妙': '妙不可言，精妙绝伦', '玲': '玲珑剔透，聪明伶俐', '珑': '玲珑精致，剔透晶莹', '晶': '晶莹剔透，纯净美好'
+            }
+        };
+
+        let favorites = JSON.parse(localStorage.getItem('favoriteNames') || '[]');
+        let generatedNames = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFavoritesDisplay();
+            updateStats();
+            
+            // 设置默认日期为今天
+            document.getElementById('birthDate').valueAsDate = new Date();
+        });
+
+        // 生成名字
+        function generateNames() {
+            const surname = document.getElementById('surname').value.trim();
+            const gender = document.getElementById('gender').value;
+            const nameLength = parseInt(document.getElementById('nameLength').value);
+            const preference = document.getElementById('preference').value;
+            const element = document.getElementById('element').value;
+            const avoidCharacters = document.getElementById('avoidCharacters').value.split(',').map(c => c.trim());
+
+            if (!surname) {
+                alert('请输入姓氏！');
+                return;
+            }
+
+            if (!gender) {
+                alert('请选择性别！');
+                return;
+            }
+
+            showLoading(true);
+
+            // 模拟异步处理
+            setTimeout(() => {
+                const names = generateNameList(surname, gender, nameLength, preference, element, avoidCharacters);
+                displayResults(names);
+                showLoading(false);
+                updateStats();
+            }, 1500);
+        }
+
+        // 生成名字列表
+        function generateNameList(surname, gender, nameLength, preference, element, avoidCharacters) {
+            const names = [];
+            const count = 12; // 生成12个名字
+
+            for (let i = 0; i < count; i++) {
+                const name = generateSingleName(surname, gender, nameLength, preference, element, avoidCharacters);
+                names.push(name);
+            }
+
+            return names;
+        }
+
+        // 生成单个名字
+        function generateSingleName(surname, gender, nameLength, preference, element, avoidCharacters) {
+            let nameChars = [];
+            
+            // 确定名字来源
+            let namePool = [];
+            if (gender === 'male') {
+                namePool = preference ? config.maleNames[preference] : [...config.maleNames.traditional, ...config.maleNames.modern];
+            } else if (gender === 'female') {
+                namePool = preference ? config.femaleNames[preference] : [...config.femaleNames.traditional, ...config.femaleNames.modern];
+            } else {
+                namePool = config.unisexNames;
+            }
+
+            // 如果指定了五行，优先使用对应元素的字
+            if (element && config.elements[element]) {
+                namePool = [...config.elements[element], ...namePool];
+            }
+
+            // 过滤避讳字符
+            namePool = namePool.filter(char => !avoidCharacters.includes(char));
+
+            // 生成名字
+            for (let i = 0; i < nameLength; i++) {
+                const randomChar = namePool[Math.floor(Math.random() * namePool.length)];
+                nameChars.push(randomChar);
+            }
+
+            const fullName = surname + nameChars.join('');
+            
+            // 计算评分
+            const score = calculateScore(fullName, gender, preference, element);
+            
+            // 获取含义
+            const meaning = getNameMeaning(nameChars);
+            
+            // 五行分析
+            const elementAnalysis = analyzeElements(fullName);
+
+            return {
+                name: fullName,
+                surname: surname,
+                givenName: nameChars.join(''),
+                score: score,
+                meaning: meaning,
+                element: elementAnalysis,
+                gender: gender,
+                preference: preference
+            };
+        }
+
+        // 计算名字评分
+        function calculateScore(name, gender, preference, element) {
+            let score = 60; // 基础分
+            
+            // 性别适配加分
+            if (gender && preference) {
+                score += 15;
+            }
+            
+            // 五行平衡加分
+            if (element) {
+                score += 10;
+            }
+            
+            // 音韵搭配加分
+            if (name.length <= 3) {
+                score += 10;
+            }
+            
+            // 随机因素
+            score += Math.floor(Math.random() * 15);
+            
+            return Math.min(score, 100);
+        }
+
+        // 获取名字含义
+        function getNameMeaning(nameChars) {
+            const meanings = [];
+            for (let char of nameChars) {
+                if (config.meanings[char]) {
+                    meanings.push(`${char}: ${config.meanings[char]}`);
+                }
+            }
+            return meanings.join('；');
+        }
+
+        // 五行分析
+        function analyzeElements(name) {
+            const elementCounts = {
+                wood: 0, fire: 0, earth: 0, metal: 0, water: 0
+            };
+            
+            // 简化的五行分析
+            for (let char of name) {
+                for (let [element, chars] of Object.entries(config.elements)) {
+                    if (chars.includes(char)) {
+                        elementCounts[element]++;
+                    }
+                }
+            }
+            
+            return elementCounts;
+        }
+
+        // 显示结果
+        function displayResults(names) {
+            generatedNames = names;
+            const resultsGrid = document.getElementById('resultsGrid');
+            const resultsSection = document.getElementById('results');
+            
+            resultsGrid.innerHTML = '';
+            
+            names.forEach((nameObj, index) => {
+                const nameCard = createNameCard(nameObj, index);
+                resultsGrid.appendChild(nameCard);
+            });
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 创建名字卡片
+        function createNameCard(nameObj, index) {
+            const card = document.createElement('div');
+            card.className = 'name-card fade-in';
+            card.style.animationDelay = `${index * 0.1}s`;
+            
+            const isFavorite = favorites.some(fav => fav.name === nameObj.name);
+            
+            card.innerHTML = `
+                <div class="name-title">${nameObj.name}</div>
+                <div class="name-details">
+                    <div class="detail-item">
+                        <span class="detail-label">综合评分</span>
+                        <span class="score">${nameObj.score}分</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">性别适配</span>
+                        <span class="detail-value">${getGenderText(nameObj.gender)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">风格类型</span>
+                        <span class="detail-value">${getPreferenceText(nameObj.preference)}</span>
+                    </div>
+                </div>
+                <div class="meaning">
+                    <h4>💫 名字寓意</h4>
+                    <p>${nameObj.meaning || '此名字寓意美好，音韵和谐'}</p>
+                </div>
+                <div class="name-actions">
+                    <button class="btn btn-small ${isFavorite ? 'btn-secondary' : 'btn-primary'}" onclick="toggleFavorite(${index})">
+                        ${isFavorite ? '❤️ 已收藏' : '🤍 收藏'}
+                    </button>
+                    <button class="btn btn-small btn-secondary" onclick="shareName('${nameObj.name}')">
+                        📤 分享
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // 随机取名
+        function generateRandomName() {
+            // 随机选择参数
+            const randomSurname = config.surnames[Math.floor(Math.random() * config.surnames.length)];
+            const randomGender = ['male', 'female', 'unisex'][Math.floor(Math.random() * 3)];
+            const randomNameLength = Math.random() > 0.3 ? 2 : 1;
+            
+            document.getElementById('surname').value = randomSurname;
+            document.getElementById('gender').value = randomGender;
+            document.getElementById('nameLength').value = randomNameLength;
+            
+            generateNames();
+        }
+
+        // 切换收藏
+        function toggleFavorite(index) {
+            const nameObj = generatedNames[index];
+            const existingIndex = favorites.findIndex(fav => fav.name === nameObj.name);
+            
+            if (existingIndex >= 0) {
+                favorites.splice(existingIndex, 1);
+            } else {
+                favorites.push(nameObj);
+            }
+            
+            localStorage.setItem('favoriteNames', JSON.stringify(favorites));
+            displayResults(generatedNames); // 刷新显示
+            updateFavoritesDisplay();
+            updateStats();
+        }
+
+        // 更新收藏显示
+        function updateFavoritesDisplay() {
+            const favoritesGrid = document.getElementById('favoritesGrid');
+            const favoritesSection = document.getElementById('favoritesSection');
+            
+            if (favorites.length === 0) {
+                favoritesSection.style.display = 'none';
+                return;
+            }
+            
+            favoritesSection.style.display = 'block';
+            favoritesGrid.innerHTML = '';
+            
+            favorites.forEach((fav, index) => {
+                const item = document.createElement('div');
+                item.className = 'favorite-item fade-in';
+                item.innerHTML = `
+                    <div style="font-size: 1.5em; font-weight: bold; margin-bottom: 8px;">${fav.name}</div>
+                    <div style="color: #666; font-size: 0.9em;">${fav.score}分</div>
+                    <button class="btn btn-small" style="margin-top: 10px; background: #ff6b6b;" onclick="removeFavorite(${index})">
+                        移除
+                    </button>
+                `;
+                favoritesGrid.appendChild(item);
+            });
+        }
+
+        // 移除收藏
+        function removeFavorite(index) {
+            favorites.splice(index, 1);
+            localStorage.setItem('favoriteNames', JSON.stringify(favorites));
+            updateFavoritesDisplay();
+            updateStats();
+            
+            if (generatedNames.length > 0) {
+                displayResults(generatedNames); // 刷新结果页面
+            }
+        }
+
+        // 分享名字
+        function shareName(name) {
+            if (navigator.share) {
+                navigator.share({
+                    title: '中文取名神器推荐',
+                    text: `为您推荐好名字：${name}`,
+                    url: window.location.href
+                });
+            } else {
+                // 复制到剪贴板
+                const text = `中文取名神器为您推荐：${name}`;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('名字已复制到剪贴板！');
+                });
+            }
+        }
+
+        // 导出收藏
+        function exportFavorites() {
+            if (favorites.length === 0) {
+                alert('暂无收藏的名字！');
+                return;
+            }
+            
+            let content = '中文取名神器 - 我的收藏\n';
+            content += '生成时间：' + new Date().toLocaleString() + '\n\n';
+            
+            favorites.forEach((fav, index) => {
+                content += `${index + 1}. ${fav.name} (${fav.score}分)\n`;
+                content += `   寓意：${fav.meaning || '音韵和谐，寓意美好'}\n\n`;
+            });
+            
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '宝宝名字收藏.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 清空结果
+        function clearResults() {
+            document.getElementById('results').style.display = 'none';
+            generatedNames = [];
+        }
+
+        // 清空收藏
+        function clearFavorites() {
+            if (confirm('确定要清空所有收藏吗？')) {
+                favorites = [];
+                localStorage.setItem('favoriteNames', JSON.stringify(favorites));
+                updateFavoritesDisplay();
+                updateStats();
+                
+                if (generatedNames.length > 0) {
+                    displayResults(generatedNames);
+                }
+            }
+        }
+
+        // 更新统计
+        function updateStats() {
+            const statsSection = document.getElementById('stats');
+            
+            if (generatedNames.length === 0 && favorites.length === 0) {
+                statsSection.style.display = 'none';
+                return;
+            }
+            
+            statsSection.style.display = 'grid';
+            
+            document.getElementById('generatedCount').textContent = generatedNames.length;
+            document.getElementById('favoriteCount').textContent = favorites.length;
+            
+            const avgScore = generatedNames.length > 0 ? 
+                Math.round(generatedNames.reduce((sum, name) => sum + name.score, 0) / generatedNames.length) : 0;
+            document.getElementById('avgScore').textContent = avgScore;
+        }
+
+        // 显示加载状态
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // 辅助函数
+        function getGenderText(gender) {
+            const map = { male: '男孩', female: '女孩', unisex: '中性' };
+            return map[gender] || '未指定';
+        }
+
+        function getPreferenceText(preference) {
+            const map = {
+                traditional: '传统典雅',
+                modern: '现代时尚',
+                literary: '文艺诗意',
+                auspicious: '吉祥寓意',
+                unique: '独特个性'
+            };
+            return map[preference] || '通用';
+        }
+    </script>
+</body>
+</html>
